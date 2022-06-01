@@ -1,0 +1,77 @@
+
+
+
+
+Primera parte con subconsultas:
+
+/*Primera pregunta*/
+select NombreCliente from Clientes
+ where LimiteCredito=
+(select max(LimiteCredito) from Clientes);
+
+/*Segunda pregunta*/
+select Nombre, Apellido1, Puesto from Empleados
+where CodigoEmpleado not in
+(select distinct CodigoEmpleadoRepVentas from Clientes) 
+and Puesto='Representante Ventas';
+
+/*Tercera pregunta*/
+select Nombre from Productos
+ where PrecioVenta=
+(select max(PrecioVenta) from Productos);
+
+/*Cuarta pregunta*/
+
+select Nombre from Productos
+where CodigoProducto=(
+select CodigoProducto from DetallePedidos 
+where cantidad=
+(select max(cantidad) from DetallePedidos));
+
+
+Segunda Parte: multitablas
+
+/*Solución primera pregunta*/
+select Empleados.Nombre, Clientes.NombreCliente, Empleados.Apellido1 from Clientes inner join Empleados
+on Empleados.CodigoEmpleado=Clientes.CodigoEmpleadoRepVentas ;
+
+/*Solución ejercicio 2 con subconsulta e inner join */
+select Clientes.NombreCliente, Empleados.Nombre from Clientes inner join Empleados
+on Empleados.CodigoEmpleado=Clientes.CodigoEmpleadoRepVentas
+where CodigoCliente
+ not in (select CodigoCliente from Pagos) ;
+
+select distinct Clientes.NombreCliente, Empleados.Nombre 
+from Clientes inner join Empleados
+on Empleados.CodigoEmpleado=Clientes.CodigoEmpleadoRepVentas
+left join Pagos
+on Pagos.CodigoCliente=Clientes.CodigoCliente
+where Pagos.CodigoCliente is null;
+
+/*Solución ejercicio 2 con left join e  inner join usando 3 tablas */
+select distinct Clientes.NombreCliente, Empleados.Nombre from
+Clientes left join Pagos
+on Clientes.CodigoCliente=Pagos.CodigoCliente
+inner join Empleados
+on Empleados.CodigoEmpleado=Clientes.CodigoEmpleadoRepVentas
+where Pagos.CodigoCliente is null;
+
+/*Solución ejercicio 3 */
+Select Productos.Nombre, sum(Cantidad), 
+sum(Cantidad*PrecioUnidad),
+sum(Cantidad*PrecioUnidad)*1.18
+from DetallePedidos inner join Productos
+on DetallePedidos.CodigoProducto=Productos.CodigoProducto
+group by Productos.Nombre
+ having sum(Cantidad*PrecioUnidad)>3000;
+
+
+
+/*Solución Pregunta 4*/
+
+Select distinct concat(Oficinas.LineaDireccion1, Oficinas.LineaDireccion2)
+from Oficinas inner join Empleados
+on Oficinas.CodigoOficina=Empleados.CodigoOficina
+inner join Clientes
+on Clientes.CodigoEmpleadoRepVentas=Empleados.CodigoEmpleado
+where Clientes.Ciudad='Fuenlabrada';

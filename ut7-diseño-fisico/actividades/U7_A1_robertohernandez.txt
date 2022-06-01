@@ -1,0 +1,66 @@
+create database futbol;
+
+use futbol;
+
+create table jugadores
+(
+id_jugador integer,
+nombre varchar(50),
+fecha_nac date,
+demarcacion varchar(50),
+internacional integer,
+id_equipo integer
+);
+
+create table equipos
+(
+id_equipo integer,
+nombre varchar (50),
+estadio varchar (50),
+aforo integer,
+anio_fundacion integer,
+ciudad varchar(50)
+);
+
+create table partidos
+(
+id_equipo_casa integer,
+id_equipo_fuera integer,
+fecha date,
+goles_casa integer,
+goles_fuera integer,
+observaciones varchar(200)
+);
+
+create table goles
+(
+id_equipo_casa integer,
+id_equipo_fuera integer,
+minuto integer,
+descripcion varchar(200),
+id_jugador integer
+);
+
+alter table partidos add hora_comienzo integer;
+
+alter table equipos add primary key (id_equipo);
+
+alter table jugadores add primary key (id_jugador);
+
+alter table partidos add primary key (id_equipo_casa, id_equipo_fuera, fecha);
+
+alter table goles add primary key (id_equipo_casa, id_equipo_fuera, minuto, id_jugador);
+
+alter table goles add foreign key(id_equipo_casa, id_equipo_fuera) references partidos(id_equipo_casa, id_equipo_fuera);
+
+alter table goles add foreign key(id_jugador) references jugadores(id_jugador);
+
+alter table equipos rename column anio_fundacion to fundacion;
+
+alter table equipos add logo blob;
+
+alter table jugadores add foreign key(id_equipo) references equipos(id_equipo) on delete set null on update cascade; 
+
+alter database futbol character set latin1 collate latin1_spanish_ci;
+
+alter table goles rename resultados;
